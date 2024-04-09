@@ -1,0 +1,36 @@
+parthenon:
+  common:
+    pdf:
+      generator: 'mpdf'
+      mpdf:
+        tmp_dir: "/tmp/"
+      wkhtmltopdf:
+        bin: '/usr/bin/wkhtmltopdf'
+  user:
+    enabled: true
+    user_class: App\Entity\User
+    team_class: App\Entity\Team
+    user_invites_enabled: true
+    teams_enabled: false
+    login_route: "parthenon_user_login"
+    teams_invites_enabled: false
+    self_signup_enabled: false
+
+
+  notification:
+    enabled: true
+    email:
+      from_name: 'Parthenon'
+      from_address: 'support@example.org'
+      provider: symfony
+
+  export:
+    enabled: true
+
+  billing:
+    enabled: true
+    payments:
+      provider: stripe
+      stripe:
+        private_api_key: '%env(resolve:STRIPE_PRIVATE_API_KEY)%'
+        public_api_key: '%env(resolve:STRIPE_PUBLIC_API_KEY)%'

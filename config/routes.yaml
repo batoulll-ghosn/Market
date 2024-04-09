@@ -1,0 +1,17 @@
+controllers:
+    resource: ../src/App/Controller/
+    type: attribute
+
+kernel:
+    resource: ../src/App/Kernel.php
+    type: attribute
+
+parthenon_user_controllers:
+    prefix: /app
+    resource: ../vendor/parthenon/parthenon/src/User/Controller/
+    type: attribute
+
+parthenon_payments_controllers:
+    prefix: /app
+    resource: ../vendor/parthenon/parthenon/src/Payments/Controller/
+    type: attribute

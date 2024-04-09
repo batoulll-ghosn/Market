@@ -1,0 +1,127 @@
+default:
+    suites:
+        default:
+            contexts:
+                - App\Tests\Behat\DemoContext
+                - App\Tests\Behat\GeneralContext
+                - App\Tests\Behat\UserContext
+
+                # API
+                - App\Tests\Behat\Api\MainContext
+
+                # Payments
+                - App\Tests\Behat\Payments\MainContext
+                - App\Tests\Behat\Payments\ApiContext
+                - App\Tests\Behat\Payments\AppContext
+
+                # Customers
+                - App\Tests\Behat\Customers\MainContext
+                - App\Tests\Behat\Customers\AppContext
+
+                # Products
+                - App\Tests\Behat\Products\ApiContext
+                - App\Tests\Behat\Products\AppContext
+
+                # Prices
+                - App\Tests\Behat\Prices\ApiContext
+                - App\Tests\Behat\Prices\AppContext
+
+                # Features
+                - App\Tests\Behat\Features\AppContext
+
+                # Subscriptions
+                - App\Tests\Behat\Subscriptions\MainContext
+                - App\Tests\Behat\Subscriptions\ApiContext
+                - App\Tests\Behat\Subscriptions\MassChangeContext
+
+                # Subscription Plan
+                - App\Tests\Behat\SubscriptionPlan\AppContext
+
+                # Payment Details
+                - App\Tests\Behat\PaymentDetails\MainContext
+                - App\Tests\Behat\PaymentDetails\ApiContext
+                - App\Tests\Behat\PaymentDetails\AppContext
+
+                # Refund
+                - App\Tests\Behat\Refund\ApiContext
+                - App\Tests\Behat\Refund\MainContext
+
+                # ChargeBack
+                - App\Tests\Behat\ChargeBacks\AppContext
+
+                # Receipt
+                - App\Tests\Behat\Receipt\AppContext
+
+                # Credit Notes
+                - App\Tests\Behat\CreditNote\AppContext
+
+                # Invoices
+                - App\Tests\Behat\Invoices\AppContext
+                - App\Tests\Behat\Invoices\CreateInvoiceContext
+
+                # Settings
+                - App\Tests\Behat\Settings\PdfTemplatesContext
+                - App\Tests\Behat\Settings\BrandsContext
+                - App\Tests\Behat\Settings\EmailTemplatesContext
+                - App\Tests\Behat\Settings\NotificationSettingsContext
+                - App\Tests\Behat\Settings\SystemSettingsContext
+                - App\Tests\Behat\Settings\UserManagementContext
+                - App\Tests\Behat\Settings\ApiKeyContext
+                - App\Tests\Behat\Settings\TaxSettingsContext
+                - App\Tests\Behat\Settings\InvoiceSettingsContext
+
+                # Stats
+                - App\Tests\Behat\Stats\MainContext
+                - App\Tests\Behat\Stats\SubscriptionsContext
+                - App\Tests\Behat\Stats\FinancialContext
+
+                # Reports
+                - App\Tests\Behat\Reports\ExpiringCards\AppContext
+
+
+                # Background Jobs
+                - App\Tests\Behat\Background\ExpiringCards\MainContext
+                - App\Tests\Behat\Background\Invoice\MainContext
+                - App\Tests\Behat\Background\Payments\MainContext
+
+                #Vouchers
+                - App\Tests\Behat\Vouchers\AppContext
+                - App\Tests\Behat\Vouchers\ApiContext
+
+                # Tax
+                - App\Tests\Behat\Tax\CustomerContext
+                - App\Tests\Behat\Tax\InvoiceContext
+                - App\Tests\Behat\Tax\ProductContext
+                - App\Tests\Behat\Tax\CountryContext
+                - App\Tests\Behat\Tax\TaxTypeContext
+
+                # Quoutes
+                - App\Tests\Behat\Quote\AppContext
+
+                # Developer
+                - App\Tests\Behat\Developer\WebhookContext
+
+                # Public
+                - App\Tests\Behat\Public\InvoiceContext
+
+                # Checkout
+                - App\Tests\Behat\Checkout\MainContext
+
+                # System
+                - App\Tests\Behat\System\CancellationRequestContext
+
+                # Stripe Interopt Layer
+                - App\Tests\Behat\Interopt\Stripe\SubscriptionsContext
+
+                # Workflow
+                - App\Tests\Behat\Workflow\CancellationRequestContext
+
+    extensions:
+        FriendsOfBehat\SymfonyExtension:
+            bootstrap: tests/bootstrap.php
+            kernel:
+                path: src/App/Kernel.php
+        Behat\MinkExtension:
+            sessions:
+                symfony:
+                    symfony: ~

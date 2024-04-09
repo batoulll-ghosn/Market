@@ -1,0 +1,447 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $kernelProjectDir: '%kernel.project_dir%'
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/App/'
+        exclude:
+            - '../src/App/DependencyInjection/'
+            - '../src/App/Entity/'
+            - '../src/App/Dto/'
+            - '../src/App/Kernel.php'
+
+    Custom\:
+        resource: '../src/Custom/'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: '../src/App/Controller/'
+        tags: ['controller.service_arguments']
+
+
+    #####
+    ## Parthenon user services
+    #####
+    Parthenon\User\Factory\EntityFactory: '@App\User\Entity\EntityFactory'
+    Parthenon\User\Repository\UserRepositoryInterface: '@App\Repository\UserRepository'
+    Parthenon\User\Notification\MessageFactory: '@App\User\Notification\MessageFactory'
+    Parthenon\Billing\Repository\CustomerRepositoryInterface: '@App\Repository\CustomerRepository'
+    Parthenon\Billing\Repository\PaymentCardRepositoryInterface: '@App\Repository\PaymentCardRepository'
+    Parthenon\Billing\Subscription\SubscriptionManagerInterface: '@App\Subscription\SubscriptionManagerInterchange'
+    Parthenon\Billing\Receipt\ReceiptGeneratorInterface: '@App\Payment\ReceiptGenerator'
+    App\Webhook\Outbound\EventDispatcherInterface: '@App\Webhook\Outbound\Messenger\EventDispatcher'
+
+
+    parthenon.billing.repository.orm.product_repository_doctrine: '@App\Repository\Orm\ProductRepository'
+    parthenon.billing.repository.orm.price_repository_doctrine: '@App\Repository\Orm\PriceRepository'
+    parthenon.billing.repository.orm.subscription_repository_doctrine: '@App\Repository\Orm\SubscriptionRepository'
+    parthenon.billing.repository.orm.subscription_plan_repository_doctrine: '@App\Repository\Orm\SubscriptionPlanRepository'
+    parthenon.billing.repository.orm.payment_repository_doctrine: '@App\Repository\Orm\PaymentRepository'
+
+    App\Repository\UserRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.user'
+    app.repository.orm.user:
+        class: App\Repository\Orm\UserRepository
+
+    parthenon.user.repository.forgot_password_code_repository:
+        class: Parthenon\User\Repository\ForgotPasswordCodeRepository
+        arguments:
+            - '@App\Repository\Orm\ForgotPasswordCodeRepository'
+
+    Parthenon\User\Repository\InviteCodeRepositoryInterface: '@App\Repository\InviteCodeRepository'
+    App\Repository\InviteCodeRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.invite_code'
+    app.repository.orm.invite_code: '@App\Repository\Orm\InviteCodeRepository'
+    parthenon.user.repository.orm.invite_code_repository_doctrine: '@App\Repository\Orm\InviteCodeRepository'
+
+    App\Repository\SubscriptionRepository:
+        arguments:
+            $entityRepository: '@Parthenon\Billing\Repository\Orm\SubscriptionServiceRepository'
+
+    App\Repository\SubscriptionPlanRepository:
+        arguments:
+            $entityRepository: '@parthenon.billing.repository.orm.subscription_plan_repository_doctrine'
+
+    App\Repository\PaymentCardRepository:
+        arguments:
+            $entityRepository: '@Parthenon\Billing\Repository\Orm\PaymentCardServiceRepository'
+
+    App\Repository\CustomerRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.customer'
+    app.repository.orm.customer:
+        class: App\Repository\Orm\CustomerRepository
+
+    App\Repository\CountryRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.country'
+    app.repository.orm.country:
+        class: App\Repository\Orm\CountryRepository
+
+    App\Repository\TemplateRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.template'
+    app.repository.orm.template:
+        class: App\Repository\Orm\TemplateRepository
+
+    App\Repository\EmailTemplateRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.email_template'
+    app.repository.orm.email_template:
+        class: App\Repository\Orm\EmailTemplateRepository
+
+    App\Repository\CancellationRequestRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.cancellation_request'
+    app.repository.orm.cancellation_request:
+        class: App\Repository\Orm\CancellationRequestRepository
+
+    App\Repository\PaymentCreationRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.payment_creation'
+    app.repository.orm.payment_creation:
+        class: App\Repository\Orm\PaymentCreationRepository
+
+    App\Repository\BrandSettingsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.brand_settings'
+    app.repository.orm.brand_settings:
+        class: App\Repository\Orm\BrandSettingsRepository
+
+    App\Repository\SettingsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.settings'
+    app.repository.orm.settings:
+        class: App\Repository\Orm\SettingsRepository
+
+    App\Repository\QuoteRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.quote'
+    app.repository.orm.quote:
+        class: App\Repository\Orm\QuoteRepository
+
+    App\Repository\PaymentFailureProcessRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.payment_failure_process'
+    app.repository.orm.payment_failure_process:
+        class: App\Repository\Orm\PaymentFailureProcessRepository
+
+
+    App\Repository\StripeImportRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.stripe_import'
+    app.repository.orm.stripe_import:
+        class: App\Repository\Orm\StripeImportRepository
+
+    App\Repository\RefundCreatedProcessRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.refund_created_process'
+    app.repository.orm.refund_created_process:
+        class: App\Repository\Orm\RefundCreatedProcessRepository
+
+    App\Repository\SubscriptionSeatModificationRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.subscription_seat_modification'
+    app.repository.orm.subscription_seat_modification:
+        class: App\Repository\Orm\SubscriptionSeatModificationRepository
+
+    App\Repository\ApiKeyRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.api_key'
+    app.repository.orm.api_key:
+        class: App\Repository\Orm\ApiKeyRepository
+
+    App\Repository\SubscriptionCreationRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.subscription_creation'
+    app.repository.orm.subscription_creation:
+        class: App\Repository\Orm\SubscriptionCreationRepository
+
+    App\Repository\Stats\SubscriptionCreationDailyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.subscription_daily_stats'
+    app.repository.orm.subscription_daily_stats:
+        class: App\Repository\Orm\SubscriptionCreationDailyStatsRepository
+    App\Repository\Stats\SubscriptionCreationMonthlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.subscription_weekly_stats'
+    app.repository.orm.subscription_weekly_stats:
+        class: App\Repository\Orm\SubscriptionCreationMonthlyStatsRepository
+    App\Repository\Stats\SubscriptionCreationYearlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.subscription_yearly_stats'
+    app.repository.orm.subscription_yearly_stats:
+        class: App\Repository\Orm\SubscriptionCreationYearlyStatsRepository
+
+    App\Repository\Stats\CustomerCreationDailyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.customer_daily_stats'
+    app.repository.orm.customer_daily_stats:
+        class: App\Repository\Orm\CustomerCreationDailyStatsRepository
+    App\Repository\Stats\CustomerCreationMonthlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.customer_weekly_stats'
+    app.repository.orm.customer_weekly_stats:
+        class: App\Repository\Orm\CustomerCreationMonthlyStatsRepository
+    App\Repository\Stats\CustomerCreationYearlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.customer_yearly_stats'
+    app.repository.orm.customer_yearly_stats:
+        class: App\Repository\Orm\CustomerCreationYearlyStatsRepository
+
+    App\Repository\Stats\SubscriptionCountDailyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.subscription_count_daily_stats'
+    app.repository.orm.subscription_count_daily_stats:
+        class: App\Repository\Orm\SubscriptionCountDailyStatsRepository
+    App\Repository\Stats\SubscriptionCountMonthlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.subscription_count_weekly_stats'
+    app.repository.orm.subscription_count_weekly_stats:
+        class: App\Repository\Orm\SubscriptionCountMonthlyStatsRepository
+    App\Repository\Stats\SubscriptionCountYearlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.subscription_count_yearly_stats'
+    app.repository.orm.subscription_count_yearly_stats:
+        class: App\Repository\Orm\SubscriptionCountYearlyStatsRepository
+
+    App\Repository\Stats\SubscriptionCancellationDailyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.subscription_cancellation_daily_stats'
+    app.repository.orm.subscription_cancellation_daily_stats:
+        class: App\Repository\Orm\SubscriptionCancellationDailyStatsRepository
+    App\Repository\Stats\SubscriptionCancellationMonthlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.subscription_cancellation_weekly_stats'
+    app.repository.orm.subscription_cancellation_weekly_stats:
+        class: App\Repository\Orm\SubscriptionCancellationMonthlyStatsRepository
+    App\Repository\Stats\SubscriptionCancellationYearlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.subscription_cancellation_yearly_stats'
+    app.repository.orm.subscription_cancellation_yearly_stats:
+        class: App\Repository\Orm\SubscriptionCancellationYearlyStatsRepository
+
+    App\Repository\Stats\CachedStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.cached_stats'
+    app.repository.orm.cached_stats:
+        class: App\Repository\Orm\CachedStatsRepository
+
+    App\Repository\Stats\PaymentAmountDailyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.payment_amount_daily_stats'
+    app.repository.orm.payment_amount_daily_stats:
+        class: App\Repository\Orm\PaymentAmountDailyStatsRepository
+
+    App\Repository\Stats\PaymentAmountMonthlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.payment_amount_weekly_stats'
+    app.repository.orm.payment_amount_weekly_stats:
+        class: App\Repository\Orm\PaymentAmountMonthlyStatsRepository
+    App\Repository\Stats\PaymentAmountYearlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.payment_amount_yearly_stats'
+    app.repository.orm.payment_amount_yearly_stats:
+        class: App\Repository\Orm\PaymentAmountYearlyStatsRepository
+
+    App\Repository\Stats\RefundAmountDailyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.refund_amount_daily_stats'
+    app.repository.orm.refund_amount_daily_stats:
+        class: App\Repository\Orm\RefundAmountDailyStatsRepository
+
+    App\Repository\Stats\RefundAmountMonthlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.refund_amount_weekly_stats'
+    app.repository.orm.refund_amount_weekly_stats:
+        class: App\Repository\Orm\RefundAmountMonthlyStatsRepository
+    App\Repository\Stats\RefundAmountYearlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.refund_amount_yearly_stats'
+    app.repository.orm.refund_amount_yearly_stats:
+        class: App\Repository\Orm\RefundAmountYearlyStatsRepository
+
+    App\Repository\Stats\ChargeBackAmountDailyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.charge_back_amount_daily_stats'
+    app.repository.orm.charge_back_amount_daily_stats:
+        class: App\Repository\Orm\ChargeBackAmountDailyStatsRepository
+    App\Repository\Stats\ChargeBackAmountMonthlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.charge_back_amount_weekly_stats'
+    app.repository.orm.charge_back_amount_weekly_stats:
+        class: App\Repository\Orm\ChargeBackAmountMonthlyStatsRepository
+    App\Repository\Stats\ChargeBackAmountYearlyStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.charge_back_amount_yearly_stats'
+    app.repository.orm.charge_back_amount_yearly_stats:
+        class: App\Repository\Orm\ChargeBackAmountYearlyStatsRepository
+
+    App\Repository\ChargeBackCreationRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.charge_back_creation'
+    app.repository.orm.charge_back_creation:
+        class: App\Repository\Orm\ChargeBackCreationRepository
+
+
+    App\Repository\Processes\ExpiringCardProcessRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.expiring_cards_process'
+    app.repository.orm.expiring_cards_process:
+        class: App\Repository\Orm\ExpiringCardProcessRepository
+
+    App\Repository\Processes\InvoiceProcessRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.invoice_process'
+    app.repository.orm.invoice_process:
+        class: App\Repository\Orm\InvoiceProcessRepository
+
+    App\Repository\InvoiceRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.invoice'
+    app.repository.orm.invoice:
+        class: App\Repository\Orm\InvoiceRepository
+
+    App\Repository\VatReportInvoiceRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.invoice'
+
+    App\Repository\CreditRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.credit'
+    app.repository.orm.credit:
+        class: App\Repository\Orm\CreditRepository
+
+    App\Repository\GenericBackgroundTaskRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.generic_background_task'
+    app.repository.orm.generic_background_task:
+        class: App\Repository\Orm\GenericBackgroundTaskRepository
+
+    App\Repository\PaymentAttemptRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.payment_attempt'
+    app.repository.orm.payment_attempt:
+        class: App\Repository\Orm\PaymentAttemptRepository
+
+    App\Repository\ExchangeRatesRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.exchange_rates'
+    app.repository.orm.exchange_rates:
+        class: App\Repository\Orm\ExchangeRatesRepository
+
+    App\Repository\VoucherRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.voucher'
+    app.repository.orm.voucher:
+        class: App\Repository\Orm\VoucherRepository
+
+    App\Repository\VoucherApplicationRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.voucher_application'
+    app.repository.orm.voucher_application:
+        class: App\Repository\Orm\VoucherApplicationRepository
+
+    App\Repository\CheckoutRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.checkout'
+    app.repository.orm.checkout:
+        class: App\Repository\Orm\CheckoutRepository
+
+    App\Repository\CheckoutSessionRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.checkout_session'
+    app.repository.orm.checkout_session:
+        class: App\Repository\Orm\CheckoutSessionRepository
+
+    App\Repository\MassSubscriptionChangeRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.mass_subscription_change'
+    app.repository.orm.mass_subscription_change:
+        class: App\Repository\Orm\MassSubscriptionChangeRepository
+
+    App\Repository\WebhookEndpointRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.webhook_endpoint'
+    app.repository.orm.webhook_endpoint:
+        class: App\Repository\Orm\WebhookEndpointRepository
+
+    App\Repository\WebhookEventRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.webhook_event'
+    app.repository.orm.webhook_event:
+        class: App\Repository\Orm\WebhookEventRepository
+
+    App\Repository\Stats\LifetimeValueStatsRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.lifetime_value'
+    app.repository.orm.lifetime_value:
+        class: App\Repository\Orm\SubscriptionRepository
+
+    App\Repository\WorkflowTransitionRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.workflow_transition'
+    app.repository.orm.workflow_transition:
+        class: App\Repository\Orm\WorkflowTransitionRepository
+
+    App\Repository\TaxTypeRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.tax_type'
+    app.repository.orm.tax_type:
+        class: App\Repository\Orm\TaxTypeRepository
+
+    App\Repository\CountryTaxRuleRepository:
+        arguments:
+            $entityRepository: '@app.repository.orm.country_tax_rule'
+    app.repository.orm.country_tax_rule:
+        class: App\Repository\Orm\CountryTaxRuleRepository
+
+    App\Customer\ExternalRegisterInterface: '@App\Customer\ObolRegister'
+
+
+    App\Invoice\Number\InvoiceNumberGeneratorInterface:
+        class: App\Invoice\Number\InvoiceNumberGeneratorProvider
+        factory: [ '@App\Invoice\Number\InvoiceNumberGeneratorProvider', 'getGenerator' ]
+
+
+    tax_provider_factory:
+        class: App\Tax\TaxRateProvider
+        factory: [ '@App\Tax\TaxRateProviderFactory', 'getTaxRateProvider' ]
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+
+    #######################
+    ### Parthenon Overrides
+    #######################
+    Parthenon\Notification\EmailSenderInterface:
+        factory: [ '@App\Notification\Email\EmailSenderFactory', 'create' ]
+
+    Parthenon\Common\Pdf\GeneratorInterface:
+        factory: [ '@App\Pdf\PdfGeneratorFactory', 'create' ]
+
+
+    Parthenon\Billing\Config\WebhookConfig:
+        factory: [ '@App\Webhook\ConfigFactory', 'createConfig' ]
+
+    Parthenon\Common\Config\SiteUrlProviderInterface: '@App\Settings\SiteUrlProvider'
+
+    Parthenon\Billing\Factory\EntityFactoryInterface: '@App\Factory\EntityFactory'
+    Parthenon\Billing\Subscription\SchedulerInterface: '@App\Subscription\Schedule\SchedulerHandler'

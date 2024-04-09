@@ -1,0 +1,138 @@
+framework:
+    workflows:
+        invoice_process:
+            type: 'state_machine'
+            marking_store:
+                type: 'method'
+                property: 'state'
+            supports:
+                - App\Entity\Processes\InvoiceProcess
+            places:
+                - started
+                - customer_notifications_sent
+                - internal_notification_sent
+                - customer_warning_sent
+                - customer_disabled
+                - paid
+            transitions:
+                send_customer_notifications:
+                    from: started
+                    to: customer_notifications_sent
+                send_internal_notifications:
+                    from: customer_notifications_sent
+                    to: internal_notification_sent
+                send_customer_warning:
+                    from: internal_notification_sent
+                    to: customer_warning_sent
+                disable_customer:
+                    from: customer_warning_sent
+                    to: customer_disabled
+                mark_as_paid:
+                    from: [internal_notification_sent, customer_warning_sent, customer_disabled]
+                    to: paid
+
+        expiring_card_process:
+            type: 'state_machine'
+            marking_store:
+                type: 'method'
+                property: 'state'
+            supports:
+                - App\Entity\Processes\ExpiringCardProcess
+            initial_marking: started
+            places:
+                - started
+                - first_email_sent
+                - day_before_valid_email_sent
+                - day_before_not_valid_email_sent
+                - card_added
+                - completed
+            transitions:
+                send_first_email:
+                    from: started
+                    to: first_email_sent
+                send_day_before_valid_email:
+                    from: first_email_sent
+                    to: day_before_valid_email_sent
+                send_day_before_not_valid_email:
+                    from: [first_email_sent, day_before_valid_email_sent]
+                    to: day_before_not_valid_email_sent
+                handle_card_added:
+                    from: [first_email_sent, day_before_valid_email_sent, day_before_not_valid_email_sent]
+                    to: card_added
+
+        stripe_import:
+            type: 'state_machine'
+            marking_store:
+                type: 'method'
+                property: 'state'
+            supports:
+                - App\Entity\StripeImport
+            places:
+                - started
+                - customers
+                - products
+                - prices
+                - subscriptions
+                - payments
+                - refunds
+                - charge_backs
+                - crunch_stats
+                - completed
+            transitions:
+                start:
+                    from: started
+                    to: customers
+                start_customers:
+                    from: customers
+                    to: products
+                start_products:
+                    from: products
+                    to: prices
+                start_prices:
+                    from: prices
+                    to: subscriptions
+                start_subscriptions:
+                    from: subscriptions
+                    to: payments
+                start_payments:
+                    from: payments
+                    to: refunds
+                start_refunds:
+                    from: refunds
+                    to: charge_backs
+                start_charge_backs:
+                    from: charge_backs
+                    to: crunch_stats
+                crunch_stats:
+                    from: crunch_stats
+                    to: completed
+
+        payment_failure_process:
+            type: 'state_machine'
+            marking_store:
+                type: 'method'
+                property: 'state'
+            supports:
+                - App\Entity\PaymentFailureProcess
+            initial_marking: started
+            places:
+                - started
+                - customer_notice_sent
+                - internal_notice_sent
+                - payment_retries
+                - payment_failure_no_more_retries
+                - payment_complete
+            transitions:
+                send_customer_notice:
+                    from: started
+                    to: customer_notice_sent
+                send_internal_notice:
+                    from: customer_notice_sent
+                    to: payment_retries
+                retries_failed:
+                    from: payment_retries
+                    to: payment_failure_no_more_retries
+                payment_succeed:
+                    from: payment_retries
+                    to: payment_complete
+
